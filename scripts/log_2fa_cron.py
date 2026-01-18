@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
+import os, sys
 from datetime import datetime, timezone
-from pathlib import Path
-from app.totp_utils import generate_totp
 
-seed_file = Path("/data/seed.txt")
+# Add /app to sys.path
+sys.path.append('/app')
 
-if not seed_file.exists():
-    raise SystemExit("Seed not found")
+from app.totp_utils import generate_code
 
-seed = seed_file.read_text().strip()
-code, _ = generate_totp(seed)
+SEED_FILE = "/data/seed.txt"
 
-timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-print(f"{timestamp} - 2FA Code: {code}")
+def main():
+    if not os.path.exists(SEED_FILE):
+        print("Seed not found")
+        return
+
+    with open(SEED_FILE, "r") as f:
+        seed = f.read().strip()
+
+    code, _ = generate_code(seed)
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    print(f"{ts} - 2FA Code: {code}")
+
+if __name__ == "__main__":
+    main()
